@@ -27,6 +27,35 @@ const DISPLAY_NAME: Record<string, string> = {
   go: "gopls",
   c: "clangd",
   cpp: "clangd",
+  java: "jdtls",
+  json: "json-ls",
+  yaml: "yaml-ls",
+  toml: "taplo",
+  html: "html-ls",
+  css: "css-ls",
+  markdown: "marksman",
+  bash: "bash-ls",
+  dockerfile: "docker-ls",
+  php: "intelephense",
+  ruby: "ruby-lsp",
+  lua: "lua-ls",
+  kotlin: "kotlin-ls",
+  swift: "sourcekit",
+  dart: "dart-ls",
+  clojure: "clojure-lsp",
+  vue: "volar",
+  svelte: "svelte-ls",
+  astro: "astro-ls",
+  zig: "zls",
+  elixir: "elixir-ls",
+  haskell: "hls",
+  ocaml: "ocamllsp",
+  terraform: "terraform-ls",
+  elm: "elm-ls",
+  prisma: "prisma-ls",
+  latex: "texlab",
+  graphql: "graphql-lsp",
+  csharp: "csharp-ls",
 };
 
 // Monaco language id → LSP server key (mirrors src/lang.ts).
@@ -38,6 +67,37 @@ const MONACO_TO_LSP: Record<string, string> = {
   go: "go",
   c: "c",
   cpp: "cpp",
+  java: "java",
+  json: "json",
+  yaml: "yaml",
+  toml: "toml",
+  html: "html",
+  css: "css",
+  scss: "css",
+  less: "css",
+  markdown: "markdown",
+  shell: "bash",
+  dockerfile: "dockerfile",
+  php: "php",
+  ruby: "ruby",
+  lua: "lua",
+  kotlin: "kotlin",
+  swift: "swift",
+  dart: "dart",
+  clojure: "clojure",
+  vue: "vue",
+  svelte: "svelte",
+  astro: "astro",
+  zig: "zig",
+  elixir: "elixir",
+  haskell: "haskell",
+  ocaml: "ocaml",
+  terraform: "terraform",
+  elm: "elm",
+  prisma: "prisma",
+  latex: "latex",
+  graphql: "graphql",
+  csharp: "csharp",
 };
 
 interface Pending {
@@ -315,9 +375,22 @@ function clientForMonacoLang(monaco: Monaco, monacoLang: string): LanguageClient
   return c;
 }
 
+// Monaco language ids that aren't built in — register them so our providers
+// attach (highlighting may be plain, but LSP completion/hover/diagnostics work).
+const EXTRA_LANGS = [
+  "vue", "svelte", "astro", "zig", "elixir", "haskell", "ocaml",
+  "terraform", "elm", "prisma", "latex", "graphql", "toml", "dart",
+];
+
+function registerExtraLanguages(monaco: Monaco) {
+  const known = new Set(monaco.languages.getLanguages().map((l) => l.id));
+  for (const id of EXTRA_LANGS) if (!known.has(id)) monaco.languages.register({ id });
+}
+
 function registerProviders(monaco: Monaco) {
   if (providersRegistered) return;
   providersRegistered = true;
+  registerExtraLanguages(monaco);
   const langs = Object.keys(MONACO_TO_LSP);
 
   const completion: languages.CompletionItemProvider = {

@@ -168,6 +168,26 @@ export const tasksApi = {
   detect: (folder: string) => invoke<Task[]>("detect_tasks", { folder }),
 };
 
+export interface LintDiag {
+  line: number;
+  column: number;
+  end_line: number;
+  end_column: number;
+  message: string;
+  severity: "error" | "warning" | "info";
+  source: string;
+}
+
+export const fmtApi = {
+  format: (tool: string, args: string[], content: string, cwd: string) =>
+    invoke<string>("format_source", { tool, args, content, cwd }),
+};
+
+export const lintApi = {
+  lint: (language: string, file: string, cwd: string) =>
+    invoke<LintDiag[]>("lint_source", { language, file, cwd }),
+};
+
 export const lspApi = {
   /** Spawn (or reuse) the language server for `language`, returns the ws port. */
   startServer: (language: string) =>

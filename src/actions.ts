@@ -54,6 +54,8 @@ export async function saveActive() {
     await fsApi.saveFile(tab.path, content);
     useStore.getState().updateContent(tab.path, content);
     useStore.getState().markSaved(tab.path);
+    // Re-lint on the saved file (external linters need it on disk).
+    import("./editor/format").then((m) => m.lintActive(tab.path, tab.monacoLang)).catch(() => {});
   } catch (e) {
     console.error("save failed", e);
   }

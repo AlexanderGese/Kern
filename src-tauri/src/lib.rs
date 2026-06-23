@@ -1,7 +1,9 @@
 // src-tauri/src/lib.rs — Kern backend: command registry + plugin wiring (§3).
+mod fmt;
 mod frontend;
 mod fs;
 mod git;
+mod lint;
 mod lsp;
 mod run;
 mod search;
@@ -116,6 +118,8 @@ pub fn run() {
             run::run_command,
             run::stop_run,
             tasks::detect_tasks,
+            fmt::format_source,
+            lint::lint_source,
             terminal::term_open,
             terminal::term_write,
             terminal::term_resize,

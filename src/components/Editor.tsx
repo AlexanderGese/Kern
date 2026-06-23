@@ -12,6 +12,7 @@ import { refreshLineDiff } from "../git/gutter";
 import { attachLsp, gotoDefinition, findReferences, renameSymbol } from "../lsp/client";
 import { attachErrorLens, attachTodos } from "../editor/lens";
 import { loadEditorConfig } from "../editor/editorconfig";
+import { lintActive } from "../editor/format";
 import { gitApi, type BlameLine } from "../ipc";
 
 function buildOptions(
@@ -210,6 +211,7 @@ export function Editor({ paneTab, primary = true }: { paneTab?: Tab; primary?: b
   useEffect(() => {
     if (!primary || !tab || !mounted || !editorRef.current || !monacoRef.current) return;
     refreshLineDiff(tab.path);
+    void lintActive(tab.path, tab.monacoLang);
     // Apply .editorconfig indentation for this file (overrides the global setting).
     if (folder) {
       loadEditorConfig(folder, tab.path)
