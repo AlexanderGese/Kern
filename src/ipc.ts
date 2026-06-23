@@ -158,6 +158,16 @@ export const runApi = {
   stop: () => invoke<void>("stop_run"),
 };
 
+export interface Task {
+  source: string;
+  name: string;
+  command: string;
+}
+
+export const tasksApi = {
+  detect: (folder: string) => invoke<Task[]>("detect_tasks", { folder }),
+};
+
 export const lspApi = {
   /** Spawn (or reuse) the language server for `language`, returns the ws port. */
   startServer: (language: string) =>

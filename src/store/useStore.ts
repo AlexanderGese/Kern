@@ -5,7 +5,8 @@ import { create } from "zustand";
 import { load, type Store } from "@tauri-apps/plugin-store";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { basename, detectLang } from "../lang";
-import type { GitStatusKind } from "../ipc";
+import type { GitStatusKind, Task } from "../ipc";
+import { tasksApi } from "../ipc";
 import { THEME_NAMES, type ThemeName } from "../themes/monaco-themes";
 
 export interface Tab {
@@ -216,6 +217,8 @@ interface AppState {
   setTheme: (t: ThemeName) => void;
   cycleTheme: () => void;
   setFolder: (path: string | null) => void;
+  tasks: Task[];
+  loadTasks: () => void;
   toggleExpand: (path: string) => void;
   setExpanded: (path: string, open: boolean) => void;
 
@@ -378,7 +381,18 @@ export const useStore = create<AppState>((set, get) => {
     },
     setFolder: (path) => {
       set({ folder: path, expanded: new Set() });
+      get().loadTasks();
       schedulePersist();
+    },
+    tasks: [],
+    loadTasks: async () => {
+      const f = get().folder;
+      if (!f) return set({ tasks: [] });
+      try {
+        set({ tasks: await tasksApi.detect(f) });
+      } catch {
+        set({ tasks: [] });
+      }
     },
     toggleExpand: (path) => {
       const ex = new Set(get().expanded);
@@ -619,6 +633,7 @@ export const useStore = create<AppState>((set, get) => {
         onboardingOpen: !(shape?.onboarded ?? false),
         ready: true,
       });
+      if (shape?.folder) get().loadTasks();
       return {
         folder: shape?.folder ?? null,
         openPaths: shape?.openPaths ?? [],

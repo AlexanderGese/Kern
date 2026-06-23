@@ -5,6 +5,7 @@ mod git;
 mod lsp;
 mod run;
 mod search;
+mod tasks;
 mod terminal;
 mod watch;
 mod window_cmd;
@@ -114,6 +115,7 @@ pub fn run() {
             search::replace_in_file,
             run::run_command,
             run::stop_run,
+            tasks::detect_tasks,
             terminal::term_open,
             terminal::term_write,
             terminal::term_resize,

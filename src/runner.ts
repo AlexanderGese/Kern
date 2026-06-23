@@ -45,6 +45,26 @@ export async function runActiveFile() {
   }
 }
 
+/** Run an arbitrary project task command in the workspace root. */
+export async function runTask(command: string, label?: string) {
+  const s = useStore.getState();
+  const cwd = s.folder;
+  if (!cwd) {
+    s.toast("error", "Open a folder to run tasks");
+    return;
+  }
+  s.clearOutput();
+  s.setOutputOpen(true);
+  s.setRunning(true);
+  if (label) s.appendOutput({ line: `▸ ${label}`, stream: "meta" });
+  try {
+    await runApi.run(command, cwd);
+  } catch (e) {
+    s.appendOutput({ line: `failed to start: ${e}`, stream: "stderr" });
+    s.setRunning(false);
+  }
+}
+
 export async function stopRun() {
   try {
     await runApi.stop();

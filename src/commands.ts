@@ -2,7 +2,7 @@
 import { useStore, FONT_CHOICES, DEFAULT_EDITOR_SETTINGS } from "./store/useStore";
 import { openFolderDialog, saveActive, closeActive } from "./actions";
 import { git } from "./git/actions";
-import { runActiveFile, stopRun } from "./runner";
+import { runActiveFile, stopRun, runTask } from "./runner";
 import { gotoDefinition, findReferences, renameSymbol } from "./lsp/client";
 import { formatDocument, goToSymbol } from "./editorCommands";
 import { createProjectFromFolder, openProject } from "./projects";
@@ -52,6 +52,13 @@ export function allCommands(): Command[] {
     { id: "run.file", title: "Run: Run File", run: () => void runActiveFile() },
     { id: "run.stop", title: "Run: Stop", run: () => void stopRun() },
     { id: "run.output", title: "Run: Toggle Output Panel", run: () => s.toggleOutput() },
+    ...s.tasks.map((t) => ({
+      id: `task.${t.source}.${t.name}`,
+      title: `Run Task: ${t.source} → ${t.name}`,
+      keywords: `task run ${t.source} ${t.command}`,
+      run: () => void runTask(t.command, `${t.source} ${t.name}`),
+    })),
+    { id: "tasks.rescan", title: "Tasks: Re-scan Project", keywords: "refresh detect tasks", run: () => s.loadTasks() },
     { id: "run.config", title: "Code Runner: Configure", run: () => s.openPanel("runner") },
     // ── terminal / view ──
     { id: "view.terminal", title: "Terminal: Toggle", hint: "⌘`", run: () => s.toggleTerm() },
