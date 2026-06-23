@@ -11,6 +11,55 @@ pub struct Task {
     pub command: String,
 }
 
+#[derive(Serialize)]
+pub struct TestRunner {
+    pub framework: String,
+    pub command: String,
+}
+
+/// Detect the test framework(s) for a workspace.
+#[tauri::command]
+pub fn detect_tests(folder: String) -> Vec<TestRunner> {
+    let mut out = Vec::new();
+    let root = Path::new(&folder);
+    if folder.is_empty() {
+        return out;
+    }
+    if root.join("Cargo.toml").exists() {
+        out.push(TestRunner { framework: "cargo".into(), command: "cargo test".into() });
+    }
+    if root.join("go.mod").exists() {
+        out.push(TestRunner { framework: "go".into(), command: "go test ./...".into() });
+    }
+    if let Ok(txt) = std::fs::read_to_string(root.join("package.json")) {
+        let v: serde_json::Value = serde_json::from_str(&txt).unwrap_or_default();
+        let has = |name: &str| {
+            v["devDependencies"].get(name).is_some() || v["dependencies"].get(name).is_some()
+        };
+        let runner = if root.join("pnpm-lock.yaml").exists() {
+            "pnpm exec"
+        } else if root.join("yarn.lock").exists() {
+            "yarn"
+        } else {
+            "npx"
+        };
+        if has("vitest") {
+            out.push(TestRunner { framework: "vitest".into(), command: format!("{runner} vitest run") });
+        } else if has("jest") {
+            out.push(TestRunner { framework: "jest".into(), command: format!("{runner} jest") });
+        } else if v["scripts"].get("test").is_some() {
+            out.push(TestRunner { framework: "npm".into(), command: "npm test".into() });
+        }
+    }
+    let py_cfg = root.join("pytest.ini").exists()
+        || root.join("pyproject.toml").exists()
+        || root.join("setup.cfg").exists();
+    if py_cfg {
+        out.push(TestRunner { framework: "pytest".into(), command: "pytest".into() });
+    }
+    out
+}
+
 #[tauri::command]
 pub fn detect_tasks(folder: String) -> Vec<Task> {
     let mut out: Vec<Task> = Vec::new();

@@ -118,6 +118,7 @@ pub fn run() {
             run::run_command,
             run::stop_run,
             tasks::detect_tasks,
+            tasks::detect_tests,
             fmt::format_source,
             lint::lint_source,
             terminal::term_open,

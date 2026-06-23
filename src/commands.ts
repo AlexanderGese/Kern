@@ -3,6 +3,7 @@ import { useStore, FONT_CHOICES, DEFAULT_EDITOR_SETTINGS } from "./store/useStor
 import { openFolderDialog, saveActive, closeActive } from "./actions";
 import { git } from "./git/actions";
 import { runActiveFile, stopRun, runTask } from "./runner";
+import { runAllTests, runFileTests, runNearestTest } from "./testing";
 import { gotoDefinition, findReferences, renameSymbol } from "./lsp/client";
 import { formatDocument, goToSymbol } from "./editorCommands";
 import { createProjectFromFolder, openProject } from "./projects";
@@ -59,6 +60,9 @@ export function allCommands(): Command[] {
       run: () => void runTask(t.command, `${t.source} ${t.name}`),
     })),
     { id: "tasks.rescan", title: "Tasks: Re-scan Project", keywords: "refresh detect tasks", run: () => s.loadTasks() },
+    { id: "test.all", title: "Test: Run All", keywords: "test suite pytest cargo jest vitest go", run: () => void runAllTests() },
+    { id: "test.file", title: "Test: Run Current File", keywords: "test file", run: () => void runFileTests() },
+    { id: "test.nearest", title: "Test: Run Nearest", keywords: "test at cursor nearest", run: () => void runNearestTest() },
     { id: "run.config", title: "Code Runner: Configure", run: () => s.openPanel("runner") },
     // ── terminal / view ──
     { id: "view.terminal", title: "Terminal: Toggle", hint: "⌘`", run: () => s.toggleTerm() },
