@@ -3,7 +3,7 @@
 // servers); a few are clearly-marked "coming soon" scaffolds for later.
 import { useEffect, useState, type ReactNode } from "react";
 import { useStore, type EditorSettings } from "../store/useStore";
-import { THEME_NAMES } from "../themes/monaco-themes";
+import { THEME_NAMES, THEME_ACCENTS, themeLabel, type ThemeName } from "../themes/monaco-themes";
 import { lspApi } from "../ipc";
 
 interface FeatureAddon {
@@ -59,18 +59,20 @@ export function AddonsPanel() {
 
         <div className="modal__body">
           <Group title="Themes">
-            <div className="addon-themes">
-              {THEME_NAMES.map((t) => (
-                <button
-                  key={t}
-                  className={"addon-theme" + (theme === t ? " is-on" : "")}
-                  data-theme={t}
-                  onClick={() => setTheme(t)}
+            <div className="setting-row">
+              <span>Color theme</span>
+              <div className="theme-select">
+                <span className="theme-select__swatch" style={{ background: THEME_ACCENTS[theme] }} />
+                <select
+                  className="setting-select"
+                  value={theme}
+                  onChange={(ev) => setTheme(ev.target.value as ThemeName)}
                 >
-                  <span className="addon-theme__swatch" />
-                  {t[0].toUpperCase() + t.slice(1)}
-                </button>
-              ))}
+                  {THEME_NAMES.map((t) => (
+                    <option key={t} value={t}>{themeLabel(t)}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </Group>
 

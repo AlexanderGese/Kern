@@ -22,6 +22,22 @@ export const THEME_NAMES: ThemeName[] = [
 
 export const LIGHT_THEMES: ThemeName[] = ["paper", "frost"];
 
+// Accent (swatch) colour per theme — mirrors the --accent in tokens.css so UI
+// swatches show each theme's real colour, not just the active accent.
+export const THEME_ACCENTS: Record<ThemeName, string> = {
+  arctic: "#5dc9c2",
+  grape: "#b58ad6",
+  amber: "#d9a85f",
+  ember: "#e07a6a",
+  forest: "#6cc08a",
+  rose: "#d987b0",
+  slate: "#7fa8c9",
+  paper: "#1f9e93",
+  frost: "#2f74cf",
+};
+
+export const themeLabel = (t: ThemeName) => t[0].toUpperCase() + t.slice(1);
+
 type Canvas = {
   base: "vs" | "vs-dark";
   bg: string; fg: string; line: string; comment: string;

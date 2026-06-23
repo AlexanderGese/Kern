@@ -2,7 +2,7 @@
 // Editor settings · Keybindings editor · Backup (export/import).
 import { useEffect, useState } from "react";
 import { useStore, FONT_CHOICES, type EditorSettings } from "../store/useStore";
-import { THEME_NAMES, type ThemeName } from "../themes/monaco-themes";
+import { THEME_NAMES, THEME_ACCENTS, themeLabel, type ThemeName } from "../themes/monaco-themes";
 import { KEYBINDINGS, comboFromEvent, effectiveCombo, prettyCombo } from "../keybindings";
 
 type Section = "editor" | "keys" | "backup";
@@ -54,10 +54,10 @@ function EditorSettingsView() {
         <h3 className="addon-group__title">Appearance</h3>
         <Row label="Color theme">
           <div className="theme-select">
-            <span className="theme-select__swatch" data-theme={theme} />
+            <span className="theme-select__swatch" style={{ background: THEME_ACCENTS[theme] }} />
             <select className="setting-select" value={theme} onChange={(ev) => setTheme(ev.target.value as ThemeName)}>
               {THEME_NAMES.map((t: ThemeName) => (
-                <option key={t} value={t}>{t[0].toUpperCase() + t.slice(1)}</option>
+                <option key={t} value={t}>{themeLabel(t)}</option>
               ))}
             </select>
           </div>
