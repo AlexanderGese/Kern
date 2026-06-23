@@ -1,0 +1,162 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Kern — design tokens (§5.4, §5.5, §7.1)
+
+   CRITICAL SCOPING RULE (§7.1): the fixed canvas lives on :root and never
+   changes between themes. Each theme block sets its own --accent AND resolves
+   every --syn-* IN THE SAME [data-theme] block, so the var(--accent)
+   indirection resolves in scope. Declaring --syn-keyword: var(--accent) on
+   :root would resolve against a non-existent --accent and silently drop ALL
+   syntax color. Do not move these out of the theme blocks.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Fixed canvas — shared by every theme */
+  --bg-window: #1a1918; /* editor canvas (warm graphite) */
+  --bg-panel: #151414; /* sidebar / tabs / status shell */
+  --bg-elevated: #222120; /* hover + active surfaces */
+  --bg-behind: #0c0c0b; /* window's outer backdrop */
+  --line: rgba(255, 255, 255, 0.05);
+
+  --fg: #ece9e3; /* primary text + plain identifiers */
+  --fg-dim: #9a948b; /* punctuation, inactive UI text */
+  --fg-faint: #5b554e; /* line numbers, separators, gutters */
+
+  --syn-comment: #756f65; /* italic, fixed across themes */
+  --syn-punct: var(--fg-dim);
+
+  --scroll: rgba(255, 255, 255, 0.07);
+  --scroll-hover: rgba(255, 255, 255, 0.14);
+
+  /* Shape & motion (§5.3) */
+  --radius: 6px;
+  --radius-sm: 4px;
+  --radius-win: 9px;
+  --t-hover: 130ms;
+  --t-theme: 250ms;
+}
+
+[data-theme="arctic"] {
+  --accent: #5dc9c2;
+  --accent-soft: rgba(93, 201, 194, 0.13);
+  --syn-keyword: var(--accent);
+  --syn-func: #79cfe0;
+  --syn-type: #58c79a;
+  --syn-string: #9bd9b9;
+  --syn-number: #6bbcd6;
+  --syn-constant: #b0e6df;
+  --syn-operator: #6aa9bf;
+}
+
+[data-theme="grape"] {
+  --accent: #b58ad6;
+  --accent-soft: rgba(181, 138, 214, 0.14);
+  --syn-keyword: var(--accent);
+  --syn-func: #c9a6e8;
+  --syn-type: #d7a2d2;
+  --syn-string: #c994c0;
+  --syn-number: #c47fb8;
+  --syn-constant: #bd8fe2;
+  --syn-operator: #a98cc4;
+}
+
+[data-theme="amber"] {
+  --accent: #d9a85f;
+  --accent-soft: rgba(217, 168, 95, 0.13);
+  --syn-keyword: var(--accent);
+  --syn-func: #e6c074;
+  --syn-type: #d4b483;
+  --syn-string: #b3aa6a;
+  --syn-number: #e0975c;
+  --syn-constant: #e8b84f;
+  --syn-operator: #c2a079;
+}
+[data-theme="ember"] {
+  --accent: #e07a6a;
+  --accent-soft: rgba(224, 122, 106, 0.13);
+  --syn-keyword: var(--accent);
+  --syn-func: #ec9a86;
+  --syn-type: #d98f7a;
+  --syn-string: #d7a98f;
+  --syn-number: #e88a6e;
+  --syn-constant: #f0b59a;
+  --syn-operator: #c99685;
+}
+[data-theme="forest"] {
+  --accent: #6cc08a;
+  --accent-soft: rgba(108, 192, 138, 0.13);
+  --syn-keyword: var(--accent);
+  --syn-func: #8fd0a0;
+  --syn-type: #5fb888;
+  --syn-string: #a7d6a0;
+  --syn-number: #7fc890;
+  --syn-constant: #b5e0b0;
+  --syn-operator: #79b894;
+}
+[data-theme="rose"] {
+  --accent: #d987b0;
+  --accent-soft: rgba(217, 135, 176, 0.14);
+  --syn-keyword: var(--accent);
+  --syn-func: #e6a3c4;
+  --syn-type: #d895b8;
+  --syn-string: #d99fc0;
+  --syn-number: #e088b5;
+  --syn-constant: #ecaecf;
+  --syn-operator: #c890ad;
+}
+[data-theme="slate"] {
+  --accent: #7fa8c9;
+  --accent-soft: rgba(127, 168, 201, 0.14);
+  --syn-keyword: var(--accent);
+  --syn-func: #9bbdd8;
+  --syn-type: #88b0cc;
+  --syn-string: #a8c2d4;
+  --syn-number: #7fb0d0;
+  --syn-constant: #b5cee0;
+  --syn-operator: #8aa8c0;
+}
+
+/* ── Light themes — these override the whole canvas, not just syntax ─────── */
+[data-theme="paper"] {
+  --bg-window: #faf8f3;
+  --bg-panel: #f1eee7;
+  --bg-elevated: #e7e3da;
+  --bg-behind: #ddd8cc;
+  --line: rgba(0, 0, 0, 0.09);
+  --fg: #2b2823;
+  --fg-dim: #6a655b;
+  --fg-faint: #a59f92;
+  --syn-comment: #9b9587;
+  --scroll: rgba(0, 0, 0, 0.1);
+  --scroll-hover: rgba(0, 0, 0, 0.2);
+  --accent: #1f9e93;
+  --accent-soft: rgba(31, 158, 147, 0.14);
+  --syn-keyword: var(--accent);
+  --syn-func: #2585a8;
+  --syn-type: #1f9e76;
+  --syn-string: #3f9a5e;
+  --syn-number: #2f86b0;
+  --syn-constant: #2f9e8c;
+  --syn-operator: #4a8a9c;
+}
+[data-theme="frost"] {
+  --bg-window: #f6f7f9;
+  --bg-panel: #edeff3;
+  --bg-elevated: #e3e6ec;
+  --bg-behind: #d9dce3;
+  --line: rgba(0, 0, 0, 0.09);
+  --fg: #1f2730;
+  --fg-dim: #586475;
+  --fg-faint: #95a0af;
+  --syn-comment: #8a93a0;
+  --scroll: rgba(0, 0, 0, 0.1);
+  --scroll-hover: rgba(0, 0, 0, 0.2);
+  --accent: #2f74cf;
+  --accent-soft: rgba(47, 116, 207, 0.14);
+  --syn-keyword: var(--accent);
+  --syn-func: #5a3fc0;
+  --syn-type: #1f8f86;
+  --syn-string: #2f8f55;
+  --syn-number: #b5642a;
+  --syn-constant: #b03a8f;
+  --syn-operator: #4a6f9c;
+}

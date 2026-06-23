@@ -1,0 +1,36 @@
+[package]
+name = "kern"
+version = "0.1.0"
+description = "Kern — a calm, minimalist code editor"
+authors = ["Kern"]
+edition = "2021"
+
+[lib]
+# The `_lib` suffix keeps the lib name unique so it won't conflict with the bin
+# name on Windows (see rust-lang/cargo#8519).
+name = "kern_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-store = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = "0.24"
+futures-util = "0.3"
+notify = "6"
+git2 = { version = "0.19", default-features = false }
+portable-pty = "0.8"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
