@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Kern",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "identifier": "com.kern.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -10,18 +10,7 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [
-      {
-        "title": "Kern",
-        "width": 1180,
-        "height": 760,
-        "minWidth": 680,
-        "minHeight": 440,
-        "decorations": false,
-        "transparent": false,
-        "backgroundColor": "#0c0c0b"
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": null
     }

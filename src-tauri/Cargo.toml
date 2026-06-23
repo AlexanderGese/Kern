@@ -1,6 +1,6 @@
 [package]
 name = "kern-code"
-version = "0.1.1"
+version = "0.1.2"
 description = "Kern — a calm, complete desktop code editor (Tauri 2 + React + Monaco)"
 authors = ["Alexander Gese"]
 edition = "2021"
@@ -41,6 +41,10 @@ futures-util = "0.3"
 notify = "6"
 git2 = { version = "0.19", default-features = false }
 portable-pty = "0.8"
+dirs = "5"
+ureq = "2"
+flate2 = "1"
+tar = "0.4"
 
 [profile.release]
 panic = "abort"

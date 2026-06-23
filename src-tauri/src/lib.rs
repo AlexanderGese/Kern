@@ -1,4 +1,5 @@
 // src-tauri/src/lib.rs — Kern backend: command registry + plugin wiring (§3).
+mod frontend;
 mod fs;
 mod git;
 mod lsp;
@@ -9,19 +10,65 @@ mod watch;
 mod window_cmd;
 
 use run::RunState;
+use std::sync::atomic::Ordering;
+use std::time::Duration;
+use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 use terminal::TermState;
 use watch::WatchState;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .register_uri_scheme_protocol("kernfs", |_ctx, request| frontend::serve_local(request))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .manage(WatchState::default())
         .manage(RunState::default())
         .manage(TermState::default())
+        .setup(|app| {
+            // Create the main window in code so we can choose its source:
+            //   • a previously-downloaded local frontend (kernfs://), or
+            //   • the embedded frontend (default for .deb/.rpm builds).
+            let local = frontend::has_local_frontend();
+            let url = if local {
+                WebviewUrl::CustomProtocol("kernfs://localhost/index.html".parse().unwrap())
+            } else {
+                WebviewUrl::App("index.html".into())
+            };
+            WebviewWindowBuilder::new(app, "main", url)
+                .title("Kern")
+                .inner_size(1180.0, 760.0)
+                .min_inner_size(680.0, 440.0)
+                .decorations(false)
+                .background_color(tauri::webview::Color(12, 12, 11, 255))
+                .build()?;
+
+            // If we loaded the embedded frontend and it never signals ready, the
+            // assets are missing (cargo-install build) — download + reload.
+            if !local {
+                let handle = app.handle().clone();
+                std::thread::spawn(move || {
+                    std::thread::sleep(Duration::from_secs(4));
+                    if frontend::FRONTEND_READY.load(Ordering::SeqCst) {
+                        return;
+                    }
+                    match frontend::bootstrap_frontend() {
+                        Ok(()) => {
+                            if let Some(win) = handle.get_webview_window("main") {
+                                let _ = win.navigate(
+                                    "kernfs://localhost/index.html".parse().unwrap(),
+                                );
+                            }
+                        }
+                        Err(e) => eprintln!("[kern] frontend bootstrap failed: {e}"),
+                    }
+                });
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
+            frontend::frontend_ready,
             fs::open_file,
             fs::save_file,
             fs::create_file,
