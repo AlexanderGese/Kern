@@ -54,6 +54,19 @@ sudo rpm  -i Kern-*.x86_64.rpm     # Fedora/RHEL
 # or: chmod +x kern-linux-x86_64 && ./kern-linux-x86_64
 ```
 
+**Build & install from source** (registers it as a desktop app with an icon):
+
+```bash
+git clone https://github.com/AlexanderGese/Kern && cd Kern
+bash scripts/install.sh
+```
+
+> ⚠️ **Do not `cargo install kern-code`.** Kern is a Tauri *desktop app*; crates.io
+> can only carry the Rust backend, **not** the bundled web frontend — so that
+> binary builds but renders a **black window**. Use the release packages or
+> `scripts/install.sh` above. (The `kern-code` crate exists for source reference
+> only.)
+
 ## Develop
 
 ```bash
