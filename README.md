@@ -44,9 +44,15 @@ Built with **Tauri 2** (Rust) + **React 19 / TypeScript / Vite** + **Monaco**.
 - **Extensions page** (`⌘⇧X`), **multi-window** (`⌘⇧N`), Zen mode,
   reduced-motion aware.
 
-## Install
+## Install (Linux x86_64)
 
-Grab a package from the [latest release](https://github.com/AlexanderGese/Kern/releases/latest):
+**One-liner** — downloads the prebuilt app and adds it to your menu:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AlexanderGese/Kern/main/scripts/curl-install.sh | bash
+```
+
+**Packages** from the [latest release](https://github.com/AlexanderGese/Kern/releases/latest):
 
 ```bash
 sudo dpkg -i Kern_*_amd64.deb      # Debian/Ubuntu
@@ -54,18 +60,23 @@ sudo rpm  -i Kern-*.x86_64.rpm     # Fedora/RHEL
 # or: chmod +x kern-linux-x86_64 && ./kern-linux-x86_64
 ```
 
-**Build & install from source** (registers it as a desktop app with an icon):
+**Cargo:**
+
+```bash
+cargo install kern-code
+```
+
+> crates.io can't carry the bundled web frontend, so a `cargo install` binary
+> ships **without** it — on **first launch** Kern downloads the matching frontend
+> from the GitHub release, installs it to its app-data dir, and reloads itself
+> (needs network once). After that it runs offline.
+
+**From source** (registers it as a desktop app with an icon):
 
 ```bash
 git clone https://github.com/AlexanderGese/Kern && cd Kern
 bash scripts/install.sh
 ```
-
-> ⚠️ **Do not `cargo install kern-code`.** Kern is a Tauri *desktop app*; crates.io
-> can only carry the Rust backend, **not** the bundled web frontend — so that
-> binary builds but renders a **black window**. Use the release packages or
-> `scripts/install.sh` above. (The `kern-code` crate exists for source reference
-> only.)
 
 ## Develop
 
