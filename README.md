@@ -14,9 +14,13 @@ Built with **Tauri 2** (Rust) + **React 19 / TypeScript / Vite** + **Monaco**.
     <td width="50%"><img src="docs/screenshots/git.png" alt="Source control"></td>
   </tr>
   <tr>
-    <td colspan="2"><img src="docs/screenshots/extensions.png" alt="Extensions page"></td>
+    <td width="50%"><img src="docs/screenshots/extensions.png" alt="Extensions page"></td>
+    <td width="50%"><img src="docs/screenshots/onboarding.png" alt="First-launch tour"></td>
   </tr>
 </table>
+
+> First launch greets you with a short tour of the key shortcuts — reopen it
+> anytime from the palette → **Help: Tour**.
 
 ## Features
 

@@ -18,6 +18,7 @@ import { BottomDock } from "./components/BottomDock";
 import { EditorArea } from "./components/EditorArea";
 import { Toasts } from "./components/Toasts";
 import { PromptModal } from "./components/PromptModal";
+import { Onboarding } from "./components/Onboarding";
 import { useStore } from "./store/useStore";
 import { useKeymap } from "./hooks/useKeymap";
 import { useGitSignal } from "./hooks/useGitSignal";
@@ -86,6 +87,7 @@ export default function App() {
       <CommandPalette />
       <Toasts />
       <PromptModal />
+      <Onboarding />
     </div>
   );
 }

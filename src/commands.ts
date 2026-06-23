@@ -85,7 +85,8 @@ export function allCommands(): Command[] {
     { id: "window.new", title: "New Window", hint: "⌘⇧N", keywords: "open window split", run: () => void windowApi.newWindow() },
     { id: "panel.git", title: "Source Control", hint: "⌘⇧G", run: () => s.togglePanel("git") },
     { id: "panel.addons", title: "Addons", hint: "⌘⇧X", run: () => s.togglePanel("addons") },
-    { id: "panel.about", title: "About & Settings", hint: "⌘,", run: () => s.openPanel("about") },
+    { id: "panel.about", title: "About Kern", keywords: "version credits", run: () => s.openPanel("about") },
+    { id: "help.tour", title: "Help: Tour (Onboarding)", keywords: "welcome onboarding tutorial help guide", run: () => s.openOnboarding() },
 
     // ── theme ──
     { id: "theme.cycle", title: "Theme: Cycle", hint: "⌘K T", run: () => s.cycleTheme() },

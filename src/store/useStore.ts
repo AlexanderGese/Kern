@@ -150,6 +150,7 @@ interface PersistShape {
   extCustom: ExtItem[];
   projects?: Project[];
   keymap?: Record<string, string>;
+  onboarded?: boolean;
 }
 
 interface AppState {
@@ -192,6 +193,7 @@ interface AppState {
   treeRev: number; // bump to force file-tree re-reads
   toasts: Toast[];
   prompt: PromptReq | null;
+  onboardingOpen: boolean; // first-launch tour
   ready: boolean;
 
   // ── actions ──
@@ -225,6 +227,8 @@ interface AppState {
   toast: (kind: Toast["kind"], msg: string) => void;
   dismissToast: (id: number) => void;
   setPrompt: (p: PromptReq | null) => void;
+  finishOnboarding: () => void;
+  openOnboarding: () => void;
 
   setEditorSetting: <K extends keyof EditorSettings>(k: K, v: EditorSettings[K]) => void;
   toggleAddon: (id: string) => void;
@@ -268,6 +272,8 @@ function applyThemeAttr(theme: ThemeName) {
   document.documentElement.dataset.theme = theme;
 }
 
+let onboardedFlag = false;
+
 // Only the primary ("main") window owns the persisted session, so additional
 // windows can hold their own folder/tabs without clobbering it.
 let isMainWindow = true;
@@ -293,6 +299,7 @@ async function persist(get: () => AppState) {
     extCustom: s.extCustom,
     projects: s.projects,
     keymap: s.keymap,
+    onboarded: onboardedFlag,
   };
   try {
     const store = await settingsStore();
@@ -340,6 +347,7 @@ export const useStore = create<AppState>((set, get) => {
     treeRev: 0,
     toasts: [],
     prompt: null,
+    onboardingOpen: false,
     ready: false,
 
     setTheme: (t) => {
@@ -449,6 +457,12 @@ export const useStore = create<AppState>((set, get) => {
     },
     dismissToast: (id) => set({ toasts: get().toasts.filter((t) => t.id !== id) }),
     setPrompt: (p) => set({ prompt: p }),
+    finishOnboarding: () => {
+      onboardedFlag = true;
+      set({ onboardingOpen: false });
+      schedulePersist();
+    },
+    openOnboarding: () => set({ onboardingOpen: true }),
 
     setEditorSetting: (k, v) => {
       set({ editor: { ...get().editor, [k]: v } });
@@ -573,6 +587,7 @@ export const useStore = create<AppState>((set, get) => {
         console.error("hydrate failed", e);
       }
       const theme = shape?.theme ?? "arctic";
+      onboardedFlag = shape?.onboarded ?? false;
       applyThemeAttr(theme);
       set({
         theme,
@@ -585,6 +600,7 @@ export const useStore = create<AppState>((set, get) => {
         extCustom: shape?.extCustom ?? [],
         projects: shape?.projects ?? [],
         keymap: shape?.keymap ?? {},
+        onboardingOpen: !(shape?.onboarded ?? false),
         ready: true,
       });
       return {
