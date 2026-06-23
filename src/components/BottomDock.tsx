@@ -3,16 +3,19 @@
 import { useEffect, useRef } from "react";
 import { useStore } from "../store/useStore";
 import { Terminal } from "./Terminal";
+import { DebugView } from "./DebugView";
 import { runActiveFile, stopRun } from "../runner";
 
 export function BottomDock() {
   const termOpen = useStore((s) => s.termOpen);
   const outputOpen = useStore((s) => s.outputOpen);
+  const debugOpen = useStore((s) => s.debugOpen);
   const setTermOpen = useStore((s) => s.setTermOpen);
   const setOutputOpen = useStore((s) => s.setOutputOpen);
+  const setDebugOpen = useStore((s) => s.setDebugOpen);
   const closeBottom = useStore((s) => s.closeBottom);
 
-  if (!termOpen && !outputOpen) return null;
+  if (!termOpen && !outputOpen && !debugOpen) return null;
 
   return (
     <div className="bottomdock">
@@ -23,12 +26,15 @@ export function BottomDock() {
         <button className={"bottomdock__tab" + (outputOpen ? " is-active" : "")} onClick={() => setOutputOpen(true)}>
           Output
         </button>
+        <button className={"bottomdock__tab" + (debugOpen ? " is-active" : "")} onClick={() => setDebugOpen(true)}>
+          Debug
+        </button>
         <span className="bottomdock__spacer" />
         {outputOpen && <OutputActions />}
         <button className="bottomdock__act" title="Close" onClick={closeBottom}>×</button>
       </div>
       <div className="bottomdock__body">
-        {termOpen ? <Terminal /> : <OutputBody />}
+        {termOpen ? <Terminal /> : outputOpen ? <OutputBody /> : <DebugView />}
       </div>
     </div>
   );

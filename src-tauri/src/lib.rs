@@ -1,4 +1,5 @@
 // src-tauri/src/lib.rs — Kern backend: command registry + plugin wiring (§3).
+mod dap;
 mod db;
 mod fmt;
 mod frontend;
@@ -129,6 +130,8 @@ pub fn run() {
             db::db_query,
             update::check_update,
             update::self_update,
+            dap::dap_start,
+            dap::dap_adapters,
             terminal::term_open,
             terminal::term_write,
             terminal::term_resize,

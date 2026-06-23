@@ -192,6 +192,7 @@ interface AppState {
   running: boolean;
   outputOpen: boolean;
   termOpen: boolean;
+  debugOpen: boolean;
   mdPreview: boolean;
   /** Right-pane file path for split editing, or null. */
   splitPath: string | null;
@@ -276,6 +277,7 @@ interface AppState {
   setOutputOpen: (b: boolean) => void;
   toggleTerm: () => void;
   setTermOpen: (b: boolean) => void;
+  setDebugOpen: (b: boolean) => void;
   closeBottom: () => void;
   toggleMdPreview: () => void;
   setSplit: (path: string | null) => void;
@@ -355,6 +357,7 @@ export const useStore = create<AppState>((set, get) => {
     running: false,
     outputOpen: false,
     termOpen: false,
+    debugOpen: false,
     mdPreview: false,
     splitPath: null,
 
@@ -618,11 +621,12 @@ export const useStore = create<AppState>((set, get) => {
     },
     clearOutput: () => set({ output: [] }),
     setRunning: (b) => set({ running: b }),
-    toggleOutput: () => set({ outputOpen: !get().outputOpen, termOpen: false }),
-    setOutputOpen: (b) => set({ outputOpen: b, ...(b ? { termOpen: false } : {}) }),
-    toggleTerm: () => set({ termOpen: !get().termOpen, outputOpen: false }),
-    setTermOpen: (b) => set({ termOpen: b, ...(b ? { outputOpen: false } : {}) }),
-    closeBottom: () => set({ outputOpen: false, termOpen: false }),
+    toggleOutput: () => set({ outputOpen: !get().outputOpen, termOpen: false, debugOpen: false }),
+    setOutputOpen: (b) => set({ outputOpen: b, ...(b ? { termOpen: false, debugOpen: false } : {}) }),
+    toggleTerm: () => set({ termOpen: !get().termOpen, outputOpen: false, debugOpen: false }),
+    setTermOpen: (b) => set({ termOpen: b, ...(b ? { outputOpen: false, debugOpen: false } : {}) }),
+    setDebugOpen: (b) => set({ debugOpen: b, ...(b ? { outputOpen: false, termOpen: false } : {}) }),
+    closeBottom: () => set({ outputOpen: false, termOpen: false, debugOpen: false }),
     toggleMdPreview: () => set({ mdPreview: !get().mdPreview }),
     setSplit: (path) => set({ splitPath: path }),
 

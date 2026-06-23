@@ -13,6 +13,8 @@ import { attachLsp, gotoDefinition, findReferences, renameSymbol } from "../lsp/
 import { attachErrorLens, attachTodos } from "../editor/lens";
 import { loadEditorConfig } from "../editor/editorconfig";
 import { lintActive } from "../editor/format";
+import { useDebug } from "../dap/store";
+import { syncBreakpoints } from "../dap/client";
 import { gitApi, type BlameLine } from "../ipc";
 
 function buildOptions(
@@ -47,6 +49,7 @@ function buildOptions(
     foldingHighlight: true,
     foldingStrategy: "auto",
     showFoldingControls: "mouseover",
+    glyphMargin: true,
     scrollbar: { verticalScrollbarSize: 11, horizontalScrollbarSize: 11, useShadows: false },
     occurrencesHighlight: "off",
     selectionHighlight: false,
@@ -79,7 +82,10 @@ export function Editor({ paneTab, primary = true }: { paneTab?: Tab; primary?: b
   const blameDecoRef = useRef<MEditor.IEditorDecorationsCollection | null>(null);
   const lensRef = useRef<IDisposable | null>(null);
   const todoRef = useRef<IDisposable | null>(null);
+  const bpDecoRef = useRef<MEditor.IEditorDecorationsCollection | null>(null);
   const inlineErrors = useStore((s) => s.editor.inlineErrors);
+  const breakpoints = useDebug((s) => s.breakpoints);
+  const stoppedAt = useDebug((s) => s.stoppedAt);
   const [mounted, setMounted] = useState(false);
 
   const reduced =
@@ -126,6 +132,18 @@ export function Editor({ paneTab, primary = true }: { paneTab?: Tab; primary?: b
         keybindings: [monaco.KeyCode.F2],
         contextMenuGroupId: "navigation",
         run: () => void renameSymbol(monaco, ed),
+      });
+
+      // Click the glyph margin to toggle a breakpoint.
+      ed.onMouseDown((e) => {
+        if (e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
+          const line = e.target.position?.lineNumber;
+          const path = ed.getModel()?.uri.path;
+          if (line && path) {
+            useDebug.getState().toggleBreakpoint(path, line);
+            void syncBreakpoints(path);
+          }
+        }
       });
     }
     setMounted(true);
@@ -241,6 +259,27 @@ export function Editor({ paneTab, primary = true }: { paneTab?: Tab; primary?: b
       lensRef.current = null;
     }
   }, [primary, mounted, inlineErrors]);
+
+  // Paint breakpoint glyphs + the current stopped line for this file.
+  useEffect(() => {
+    if (!primary || !mounted || !editorRef.current || !monacoRef.current || !tab) return;
+    const monaco = monacoRef.current;
+    const decos: MEditor.IModelDeltaDecoration[] = [];
+    for (const line of breakpoints[tab.path] ?? []) {
+      decos.push({
+        range: new monaco.Range(line, 1, line, 1),
+        options: { isWholeLine: false, glyphMarginClassName: "kern-bp", glyphMarginHoverMessage: { value: "Breakpoint" } },
+      });
+    }
+    if (stoppedAt && stoppedAt.path === tab.path) {
+      decos.push({
+        range: new monaco.Range(stoppedAt.line, 1, stoppedAt.line, 1),
+        options: { isWholeLine: true, className: "kern-bp-line", glyphMarginClassName: "kern-bp-arrow" },
+      });
+    }
+    if (!bpDecoRef.current) bpDecoRef.current = editorRef.current.createDecorationsCollection(decos);
+    else bpDecoRef.current.set(decos);
+  }, [breakpoints, stoppedAt, tab?.path, mounted, primary]);
 
   useEffect(() => () => {
     cursorSub.current?.dispose();

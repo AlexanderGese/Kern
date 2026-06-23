@@ -1,11 +1,13 @@
 // src/commands.ts — the command registry behind the palette (§6.5) and keymap.
-import { useStore, FONT_CHOICES, DEFAULT_EDITOR_SETTINGS } from "./store/useStore";
+import { useStore, activeTab, FONT_CHOICES, DEFAULT_EDITOR_SETTINGS } from "./store/useStore";
 import { openFolderDialog, saveActive, closeActive } from "./actions";
 import { git } from "./git/actions";
 import { runActiveFile, stopRun, runTask } from "./runner";
 import { runAllTests, runFileTests, runNearestTest } from "./testing";
 import { sendRequest } from "./rest";
 import { checkForUpdates, updateNow } from "./update";
+import { startDebug, stopDebug } from "./dap/client";
+import { useDebug } from "./dap/store";
 import { gotoDefinition, findReferences, renameSymbol } from "./lsp/client";
 import { formatDocument, goToSymbol } from "./editorCommands";
 import { createProjectFromFolder, openProject } from "./projects";
@@ -84,6 +86,13 @@ export function allCommands(): Command[] {
     { id: "k8s.ctx", title: "Kubernetes: Contexts", keywords: "kubernetes k8s kubectl context", run: () => void runTask("kubectl config get-contexts", "kubectl contexts") },
     { id: "git.blame.toggle", title: "Git: Toggle Inline Blame", keywords: "gitlens blame annotate author", run: () => s.toggleAddon("blame") },
     // ── updates ──
+    // ── debug ──
+    { id: "debug.start", title: "Debug: Start (Python)", keywords: "debug debugger debugpy breakpoint run", run: () => { const t = activeTab(s); if (t) void startDebug(t.path, "python"); } },
+    { id: "debug.stop", title: "Debug: Stop", keywords: "debug stop disconnect", run: () => void stopDebug() },
+    { id: "debug.breakpoint", title: "Debug: Toggle Breakpoint", keywords: "debug breakpoint", run: () => {
+        const t = activeTab(s); const ed = getEditor(); const line = ed?.getPosition()?.lineNumber;
+        if (t && line) { useDebug.getState().toggleBreakpoint(t.path, line); }
+      } },
     { id: "kern.update.check", title: "Kern: Check for Updates", keywords: "update upgrade version", run: () => void checkForUpdates(true) },
     { id: "kern.update.now", title: "Kern: Update Now", keywords: "update upgrade install latest", run: () => void updateNow() },
     { id: "run.config", title: "Code Runner: Configure", run: () => s.openPanel("runner") },

@@ -177,7 +177,7 @@ pub async fn lsp_start_server(app: tauri::AppHandle, language: String) -> Result
 }
 
 /// Read one Content-Length-framed LSP message; returns the JSON body as String.
-async fn read_frame<R: AsyncReadExt + Unpin>(
+pub(crate) async fn read_frame<R: AsyncReadExt + Unpin>(
     reader: &mut R,
 ) -> std::io::Result<Option<String>> {
     let mut content_length: Option<usize> = None;
@@ -227,7 +227,7 @@ async fn read_header_line<R: AsyncReadExt + Unpin>(
     }
 }
 
-async fn write_frame<W: AsyncWriteExt + Unpin>(
+pub(crate) async fn write_frame<W: AsyncWriteExt + Unpin>(
     writer: &mut W,
     body: &[u8],
 ) -> std::io::Result<()> {

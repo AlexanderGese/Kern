@@ -530,6 +530,34 @@ body, .titlebar, .sidebar, .tabbar, .pathbar, .statusbar, .gitpanel {
 .sidebar__extra-root { margin-top: 6px; border-top: 1px solid var(--line); }
 .sidebar__extra-head { display: flex; align-items: center; justify-content: space-between; padding: 5px 10px 3px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--fg-dim); }
 
+/* Debugger: breakpoints + stopped line */
+.kern-bp { background: #e0796a; border-radius: 50%; width: 9px !important; height: 9px !important; margin-left: 5px; margin-top: 5px; box-shadow: 0 0 4px rgba(224,121,106,0.6); }
+.kern-bp-arrow::after { content: "▶"; color: #d9a85f; font-size: 10px; }
+.kern-bp-line { background: rgba(217,168,95,0.12); }
+
+/* Debug view (bottom dock) */
+.debug { display: flex; flex-direction: column; height: 100%; font-size: 12.5px; }
+.debug__bar { display: flex; align-items: center; gap: 4px; padding: 5px 8px; border-bottom: 1px solid var(--line); }
+.debug__btn { font: inherit; font-size: 12px; color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 5px; padding: 2px 9px; cursor: pointer; }
+.debug__btn:hover:not(:disabled) { border-color: var(--accent); }
+.debug__btn:disabled { opacity: 0.35; cursor: default; }
+.debug__btn--go { color: #6cc08a; }
+.debug__btn--stop { color: #e0796a; }
+.debug__state { margin-left: auto; color: var(--fg-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+.debug__panes { flex: 1; display: flex; min-height: 0; }
+.debug__pane { flex: 1; overflow: auto; border-right: 1px solid var(--line); padding: 6px 8px; }
+.debug__pane--console { flex: 1.4; border-right: none; }
+.debug__h { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fg-dim); margin-bottom: 5px; }
+.debug__empty { color: var(--fg-faint); }
+.debug__frame { display: flex; justify-content: space-between; gap: 8px; padding: 2px 4px; border-radius: 4px; cursor: pointer; }
+.debug__frame:hover { background: var(--accent-soft); }
+.debug__frame-loc { color: var(--fg-dim); font-size: 11px; }
+.debug__var { display: flex; gap: 8px; padding: 1px 4px; }
+.debug__var-k { color: var(--accent); }
+.debug__var-v { color: var(--fg-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.debug__console { height: 100%; overflow: auto; font-family: var(--mono, monospace); font-size: 12px; }
+.debug__log { white-space: pre-wrap; color: var(--fg-dim); }
+
 /* ── Vim status ─────────────────────────────────────────────────────────── */
 .vim-status { color: var(--accent) !important; font-size: 11px; }
 
