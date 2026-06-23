@@ -5,10 +5,11 @@ import { git } from "./git/actions";
 import { runActiveFile, stopRun, runTask } from "./runner";
 import { runAllTests, runFileTests, runNearestTest } from "./testing";
 import { sendRequest } from "./rest";
+import { checkForUpdates, updateNow } from "./update";
 import { gotoDefinition, findReferences, renameSymbol } from "./lsp/client";
 import { formatDocument, goToSymbol } from "./editorCommands";
 import { createProjectFromFolder, openProject } from "./projects";
-import { windowApi } from "./ipc";
+import { windowApi, fsApi } from "./ipc";
 import { getEditor, getMonaco } from "./editorBridge";
 import { THEME_NAMES, type ThemeName } from "./themes/monaco-themes";
 
@@ -66,6 +67,25 @@ export function allCommands(): Command[] {
     { id: "test.nearest", title: "Test: Run Nearest", keywords: "test at cursor nearest", run: () => void runNearestTest() },
     { id: "rest.send", title: "REST: Send Request", hint: "⌘⏎", keywords: "http request api curl rest .http", run: () => void sendRequest() },
     { id: "db.open", title: "Database: SQLite Explorer", keywords: "sql sqlite database query table", run: () => s.openPanel("database") },
+    // ── GitHub (gh CLI) ──
+    { id: "gh.pr.list", title: "GitHub: List Pull Requests", keywords: "github pr pull request", run: () => void runTask("gh pr list", "gh pr list") },
+    { id: "gh.pr.status", title: "GitHub: PR Status", keywords: "github pr status", run: () => void runTask("gh pr status", "gh pr status") },
+    { id: "gh.pr.checks", title: "GitHub: PR Checks", keywords: "github pr ci checks", run: () => void runTask("gh pr checks", "gh pr checks") },
+    { id: "gh.pr.create", title: "GitHub: Create Pull Request", keywords: "github pr create new", run: () => void runTask("gh pr create --fill --web", "gh pr create") },
+    { id: "gh.issue.list", title: "GitHub: List Issues", keywords: "github issues", run: () => void runTask("gh issue list", "gh issue list") },
+    // ── Docker ──
+    { id: "docker.ps", title: "Docker: Containers", keywords: "docker container ps", run: () => void runTask("docker ps -a", "docker ps") },
+    { id: "docker.images", title: "Docker: Images", keywords: "docker images", run: () => void runTask("docker images", "docker images") },
+    { id: "docker.compose.up", title: "Docker: Compose Up", keywords: "docker compose up", run: () => void runTask("docker compose up -d", "docker compose up") },
+    { id: "docker.compose.down", title: "Docker: Compose Down", keywords: "docker compose down", run: () => void runTask("docker compose down", "docker compose down") },
+    // ── Kubernetes ──
+    { id: "k8s.pods", title: "Kubernetes: Pods", keywords: "kubernetes k8s kubectl pods", run: () => void runTask("kubectl get pods -A", "kubectl pods") },
+    { id: "k8s.svc", title: "Kubernetes: Services", keywords: "kubernetes k8s kubectl services", run: () => void runTask("kubectl get svc -A", "kubectl svc") },
+    { id: "k8s.ctx", title: "Kubernetes: Contexts", keywords: "kubernetes k8s kubectl context", run: () => void runTask("kubectl config get-contexts", "kubectl contexts") },
+    { id: "git.blame.toggle", title: "Git: Toggle Inline Blame", keywords: "gitlens blame annotate author", run: () => s.toggleAddon("blame") },
+    // ── updates ──
+    { id: "kern.update.check", title: "Kern: Check for Updates", keywords: "update upgrade version", run: () => void checkForUpdates(true) },
+    { id: "kern.update.now", title: "Kern: Update Now", keywords: "update upgrade install latest", run: () => void updateNow() },
     { id: "run.config", title: "Code Runner: Configure", run: () => s.openPanel("runner") },
     // ── terminal / view ──
     { id: "view.terminal", title: "Terminal: Toggle", hint: "⌘`", run: () => s.toggleTerm() },
@@ -80,6 +100,7 @@ export function allCommands(): Command[] {
     { id: "tab.prev", title: "Tab: Previous", run: () => s.nextTab(-1) },
 
     // ── projects ──
+    { id: "workspace.addFolder", title: "Workspace: Add Folder…", keywords: "multi root workspace add folder", run: async () => { const p = await fsApi.pickFolder(); if (p) s.addRoot(p); } },
     { id: "project.new", title: "Project: Save Current Folder as Project…", keywords: "create new save", run: () => void createProjectFromFolder() },
     ...s.projects.map((p) => ({
       id: `project.open.${p.id}`,

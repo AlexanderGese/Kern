@@ -158,6 +158,7 @@ export interface PromptReq {
 interface PersistShape {
   theme: ThemeName;
   folder: string | null;
+  extraRoots?: string[];
   openPaths: string[];
   activePath: string | null;
   sidebarVisible: boolean;
@@ -175,6 +176,7 @@ interface AppState {
   // ── persisted-ish ──
   theme: ThemeName;
   folder: string | null;
+  extraRoots: string[];
   sidebarVisible: boolean;
   zen: boolean;
   editor: EditorSettings;
@@ -218,6 +220,8 @@ interface AppState {
   setTheme: (t: ThemeName) => void;
   cycleTheme: () => void;
   setFolder: (path: string | null) => void;
+  addRoot: (path: string) => void;
+  removeRoot: (path: string) => void;
   tasks: Task[];
   loadTasks: () => void;
   toggleExpand: (path: string) => void;
@@ -309,6 +313,7 @@ async function persist(get: () => AppState) {
   const shape: PersistShape = {
     theme: s.theme,
     folder: s.folder,
+    extraRoots: s.extraRoots,
     openPaths: s.tabs.map((t) => t.path),
     activePath: s.activePath,
     sidebarVisible: s.sidebarVisible,
@@ -336,6 +341,7 @@ export const useStore = create<AppState>((set, get) => {
   return {
     theme: "arctic",
     folder: null,
+    extraRoots: [],
     sidebarVisible: true,
     zen: false,
     editor: { ...DEFAULT_EDITOR_SETTINGS },
@@ -381,8 +387,19 @@ export const useStore = create<AppState>((set, get) => {
       get().setTheme(next);
     },
     setFolder: (path) => {
-      set({ folder: path, expanded: new Set() });
+      set({ folder: path, extraRoots: [], expanded: new Set() });
       get().loadTasks();
+      schedulePersist();
+    },
+    addRoot: (path) => {
+      const cur = get().extraRoots;
+      if (path && path !== get().folder && !cur.includes(path)) {
+        set({ extraRoots: [...cur, path] });
+        schedulePersist();
+      }
+    },
+    removeRoot: (path) => {
+      set({ extraRoots: get().extraRoots.filter((p) => p !== path) });
       schedulePersist();
     },
     tasks: [],
@@ -623,6 +640,7 @@ export const useStore = create<AppState>((set, get) => {
       set({
         theme,
         folder: shape?.folder ?? null,
+        extraRoots: shape?.extraRoots ?? [],
         sidebarVisible: shape?.sidebarVisible ?? true,
         editor: { ...DEFAULT_EDITOR_SETTINGS, ...(shape?.editor ?? {}) },
         addons: new Set(shape?.addons ?? []),

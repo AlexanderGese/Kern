@@ -526,6 +526,10 @@ body, .titlebar, .sidebar, .tabbar, .pathbar, .statusbar, .gitpanel {
 .db-results th { background: var(--accent-soft); position: sticky; top: 0; }
 .db-count { padding: 6px 8px; color: var(--fg-dim); font-size: 11.5px; }
 
+/* Multi-root workspace extra folders */
+.sidebar__extra-root { margin-top: 6px; border-top: 1px solid var(--line); }
+.sidebar__extra-head { display: flex; align-items: center; justify-content: space-between; padding: 5px 10px 3px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--fg-dim); }
+
 /* ── Vim status ─────────────────────────────────────────────────────────── */
 .vim-status { color: var(--accent) !important; font-size: 11px; }
 

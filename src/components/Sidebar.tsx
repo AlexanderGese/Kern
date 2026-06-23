@@ -17,6 +17,7 @@ interface Menu {
 
 export function Sidebar() {
   const folder = useStore((s) => s.folder);
+  const extraRoots = useStore((s) => s.extraRoots);
   const treeRev = useStore((s) => s.treeRev);
   const [root, setRoot] = useState<FileEntry | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
@@ -76,6 +77,16 @@ export function Sidebar() {
       </div>
       {root?.children?.map((child) => (
         <TreeNode key={child.path} entry={child} depth={0} onContext={setMenu} />
+      ))}
+
+      {extraRoots.map((rp) => (
+        <div key={rp} className="sidebar__extra-root">
+          <div className="sidebar__extra-head">
+            <span>{rp.split(/[\\/]/).pop()}</span>
+            <span className="sidebar__action" title="Remove from workspace" onClick={() => useStore.getState().removeRoot(rp)}>×</span>
+          </div>
+          <TreeNode entry={{ path: rp, name: rp.split(/[\\/]/).pop() ?? rp, isDir: true }} depth={0} onContext={setMenu} />
+        </div>
       ))}
 
       {menu && <ContextMenu menu={menu} folder={folder} onClose={() => setMenu(null)} />}

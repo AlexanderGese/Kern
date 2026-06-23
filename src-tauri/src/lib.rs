@@ -11,6 +11,7 @@ mod run;
 mod search;
 mod tasks;
 mod terminal;
+mod update;
 mod watch;
 mod window_cmd;
 
@@ -126,6 +127,8 @@ pub fn run() {
             http_client::http_request,
             db::db_tables,
             db::db_query,
+            update::check_update,
+            update::self_update,
             terminal::term_open,
             terminal::term_write,
             terminal::term_resize,

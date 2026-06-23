@@ -50,6 +50,9 @@ export default function App() {
       for (const p of openPaths) await openPath(p);
       if (activePath) useStore.getState().setActive(activePath);
     })();
+    // Quietly check for a newer Kern release a few seconds after launch.
+    const t = setTimeout(() => void import("./update").then((m) => m.checkForUpdates(false)), 4000);
+    return () => clearTimeout(t);
   }, []);
 
   useKeymap();
