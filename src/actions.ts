@@ -45,8 +45,10 @@ export async function saveActive() {
     const { formatDocument } = await import("./editorCommands");
     await formatDocument();
   }
-  // Pull the freshest text straight from the model in case onChange is mid-flight.
+  // Apply trim-trailing-whitespace / insert-final-newline before reading.
   const ed = getEditor();
+  if (ed) applyOnSaveFixups(ed, state.editor.trimWhitespace, state.editor.insertFinalNewline);
+  // Pull the freshest text straight from the model in case onChange is mid-flight.
   const content = ed?.getModel()?.getValue() ?? tab.content;
   try {
     await fsApi.saveFile(tab.path, content);
@@ -55,6 +57,38 @@ export async function saveActive() {
   } catch (e) {
     console.error("save failed", e);
   }
+}
+
+/** Trailing-whitespace trim + single final newline, applied via editor edits so
+ *  undo and cursor survive. No-op when both are off. */
+function applyOnSaveFixups(ed: ReturnType<typeof getEditor>, trim: boolean, finalNl: boolean) {
+  const model = ed?.getModel();
+  if (!model || (!trim && !finalNl)) return;
+  const edits: { range: import("monaco-editor").IRange; text: string }[] = [];
+  if (trim) {
+    const lines = model.getLineCount();
+    for (let i = 1; i <= lines; i++) {
+      const text = model.getLineContent(i);
+      const trimmed = text.replace(/[ \t]+$/, "");
+      if (trimmed.length !== text.length) {
+        edits.push({
+          range: { startLineNumber: i, startColumn: trimmed.length + 1, endLineNumber: i, endColumn: text.length + 1 },
+          text: "",
+        });
+      }
+    }
+  }
+  if (finalNl) {
+    const last = model.getLineCount();
+    const lastText = model.getLineContent(last);
+    if (lastText.length > 0) {
+      edits.push({
+        range: { startLineNumber: last, startColumn: lastText.length + 1, endLineNumber: last, endColumn: lastText.length + 1 },
+        text: "\n",
+      });
+    }
+  }
+  if (edits.length) ed!.executeEdits("kern.onSave", edits.map((e) => ({ ...e, forceMoveMarkers: true })));
 }
 
 export function closeActive() {

@@ -10,6 +10,8 @@ import { registerThemes } from "../themes/monaco-themes";
 import { setMonaco, setEditor } from "../editorBridge";
 import { refreshLineDiff } from "../git/gutter";
 import { attachLsp, gotoDefinition, findReferences, renameSymbol } from "../lsp/client";
+import { attachErrorLens, attachTodos } from "../editor/lens";
+import { loadEditorConfig } from "../editor/editorconfig";
 import { gitApi, type BlameLine } from "../ipc";
 
 function buildOptions(
@@ -35,12 +37,20 @@ function buildOptions(
     smoothScrolling: true,
     padding: { top: 16, bottom: 16 },
     renderLineHighlight: "line",
-    guides: { indentation: true },
+    guides: {
+      indentation: s.indentGuides,
+      highlightActiveIndentation: s.indentGuides,
+      bracketPairs: s.bracketColors ? "active" : false,
+    },
+    folding: true,
+    foldingHighlight: true,
+    foldingStrategy: "auto",
+    showFoldingControls: "mouseover",
     scrollbar: { verticalScrollbarSize: 11, horizontalScrollbarSize: 11, useShadows: false },
     occurrencesHighlight: "off",
     selectionHighlight: false,
-    bracketPairColorization: { enabled: false },
-    stickyScroll: { enabled: false },
+    bracketPairColorization: { enabled: s.bracketColors },
+    stickyScroll: { enabled: s.stickyScroll, maxLineCount: 5 },
     contextmenu: false,
     fixedOverflowWidgets: true,
   };
@@ -66,6 +76,9 @@ export function Editor({ paneTab, primary = true }: { paneTab?: Tab; primary?: b
   const vimStatusRef = useRef<HTMLDivElement>(null);
   const blameRef = useRef<BlameLine[] | null>(null);
   const blameDecoRef = useRef<MEditor.IEditorDecorationsCollection | null>(null);
+  const lensRef = useRef<IDisposable | null>(null);
+  const todoRef = useRef<IDisposable | null>(null);
+  const inlineErrors = useStore((s) => s.editor.inlineErrors);
   const [mounted, setMounted] = useState(false);
 
   const reduced =
@@ -197,12 +210,41 @@ export function Editor({ paneTab, primary = true }: { paneTab?: Tab; primary?: b
   useEffect(() => {
     if (!primary || !tab || !mounted || !editorRef.current || !monacoRef.current) return;
     refreshLineDiff(tab.path);
+    // Apply .editorconfig indentation for this file (overrides the global setting).
+    if (folder) {
+      loadEditorConfig(folder, tab.path)
+        .then((ec) => {
+          const model = editorRef.current?.getModel();
+          if (!model || (ec.indentSize == null && ec.insertSpaces == null)) return;
+          model.updateOptions({
+            ...(ec.indentSize != null ? { tabSize: ec.indentSize } : {}),
+            ...(ec.insertSpaces != null ? { insertSpaces: ec.insertSpaces } : {}),
+          });
+        })
+        .catch(() => {});
+    }
     const dispose = attachLsp(monacoRef.current, editorRef.current, tab);
     return dispose;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab?.path, tab?.saved, mounted, primary]);
 
-  useEffect(() => () => cursorSub.current?.dispose(), []);
+  // error-lens (toggleable) + TODO highlight, primary pane only.
+  useEffect(() => {
+    if (!primary || !mounted || !editorRef.current || !monacoRef.current) return;
+    if (!todoRef.current) todoRef.current = attachTodos(monacoRef.current, editorRef.current);
+    if (inlineErrors && !lensRef.current) {
+      lensRef.current = attachErrorLens(monacoRef.current, editorRef.current);
+    } else if (!inlineErrors && lensRef.current) {
+      lensRef.current.dispose();
+      lensRef.current = null;
+    }
+  }, [primary, mounted, inlineErrors]);
+
+  useEffect(() => () => {
+    cursorSub.current?.dispose();
+    lensRef.current?.dispose();
+    todoRef.current?.dispose();
+  }, []);
 
   if (!tab) {
     return (

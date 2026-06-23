@@ -5,6 +5,7 @@ import { useStore } from "../store/useStore";
 import { fsApi, type FileEntry, type GitStatusKind } from "../ipc";
 import { openPath } from "../actions";
 import { newFile, newFolder, renamePath, deletePath } from "../fsActions";
+import { FileIcon } from "./fileIcons";
 
 const INDENT = 12;
 
@@ -139,6 +140,7 @@ function TreeNode({
         >
           ›
         </span>
+        {!entry.isDir && <FileIcon name={entry.name} isDir={false} />}
         <span className="tree-row__name">{entry.name}</span>
         {status && <span className={`tree-row__git s-${status}`}>{badge(status)}</span>}
       </div>

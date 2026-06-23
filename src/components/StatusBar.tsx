@@ -1,6 +1,8 @@
 // src/components/StatusBar.tsx — mono, faint, hoverable segments (§5.6).
 // Left: quick panel toggles + branch. Right: LSP + file meta + theme.
+import { useEffect, useState } from "react";
 import { useStore, activeTab } from "../store/useStore";
+import { getEditor } from "../editorBridge";
 
 export function StatusBar() {
   const branch = useStore((s) => s.branch);
@@ -11,6 +13,19 @@ export function StatusBar() {
   const togglePanel = useStore((s) => s.togglePanel);
   const toggleSidebar = useStore((s) => s.toggleSidebar);
   const cycleTheme = useStore((s) => s.cycleTheme);
+
+  const [eol, setEol] = useState<"LF" | "CRLF">("LF");
+  useEffect(() => {
+    const m = getEditor()?.getModel();
+    if (m) setEol(m.getEndOfLineSequence() === 1 ? "CRLF" : "LF");
+  }, [tab?.path, tab?.content]);
+  const toggleEol = () => {
+    const m = getEditor()?.getModel();
+    if (!m) return;
+    const next = m.getEndOfLineSequence() === 1 ? 0 : 1;
+    m.setEOL(next as 0 | 1 as never);
+    setEol(next === 1 ? "CRLF" : "LF");
+  };
 
   return (
     <footer className="statusbar">
@@ -45,6 +60,8 @@ export function StatusBar() {
       <span className="status-seg">utf-8</span>
       {tab && (
         <>
+          <span className="status-mid">·</span>
+          <span className="status-seg" title="Toggle line endings (LF / CRLF)" onClick={toggleEol}>{eol}</span>
           <span className="status-mid">·</span>
           <span className="status-seg">{tab.monacoLang}</span>
         </>

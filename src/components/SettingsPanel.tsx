@@ -94,6 +94,13 @@ function EditorSettingsView() {
         <Toggle label="Font ligatures" on={e.ligatures} onClick={() => toggle("ligatures")} />
         <Toggle label="Relative line numbers" on={e.relativeLineNumbers} onClick={() => toggle("relativeLineNumbers")} />
         <Toggle label="Cursor blink" on={e.cursorBlink} onClick={() => toggle("cursorBlink")} />
+        <Toggle label="Sticky scroll" desc="Pin enclosing scopes to the top" on={e.stickyScroll} onClick={() => toggle("stickyScroll")} />
+        <Toggle label="Bracket pair colors" desc="Colorize matching brackets" on={e.bracketColors} onClick={() => toggle("bracketColors")} />
+        <Toggle label="Indent guides" on={e.indentGuides} onClick={() => toggle("indentGuides")} />
+        <Toggle label="Monochrome file icons" desc="Single muted tone instead of per-type colors" on={e.monoIcons} onClick={() => toggle("monoIcons")} />
+        <Toggle label="Inline errors" desc="Show diagnostics at the end of the line (error-lens)" on={e.inlineErrors} onClick={() => toggle("inlineErrors")} />
+        <Toggle label="Trim trailing whitespace" desc="On save" on={e.trimWhitespace} onClick={() => toggle("trimWhitespace")} />
+        <Toggle label="Insert final newline" desc="On save" on={e.insertFinalNewline} onClick={() => toggle("insertFinalNewline")} />
       </section>
     </>
   );

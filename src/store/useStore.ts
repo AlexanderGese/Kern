@@ -39,6 +39,15 @@ export interface EditorSettings {
   /** Debounce (ms) before auto-save fires after the last edit. */
   autoSaveDelay: number;
   formatOnSave: boolean;
+  stickyScroll: boolean;
+  bracketColors: boolean;
+  indentGuides: boolean;
+  /** error-lens: render diagnostics inline at end of line. */
+  inlineErrors: boolean;
+  trimWhitespace: boolean;
+  insertFinalNewline: boolean;
+  /** Render file-tree icons in a single muted tone instead of per-type colors. */
+  monoIcons: boolean;
 }
 
 export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
@@ -54,6 +63,13 @@ export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
   autoSave: false,
   autoSaveDelay: 800,
   formatOnSave: false,
+  stickyScroll: true,
+  bracketColors: true,
+  indentGuides: true,
+  inlineErrors: true,
+  trimWhitespace: true,
+  insertFinalNewline: true,
+  monoIcons: false,
 };
 
 /** Code-runner command templates per Monaco language id. Placeholders:
