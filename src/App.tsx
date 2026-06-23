@@ -14,6 +14,7 @@ import { ExtensionsPanel } from "./components/ExtensionsPanel";
 import { RunnerPanel } from "./components/RunnerPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { ProblemsPanel } from "./components/ProblemsPanel";
+import { DBPanel } from "./components/DBPanel";
 import { BottomDock } from "./components/BottomDock";
 import { EditorArea } from "./components/EditorArea";
 import { Toasts } from "./components/Toasts";
@@ -84,6 +85,7 @@ export default function App() {
       {panel === "runner" && <RunnerPanel />}
       {panel === "settings" && <SettingsPanel />}
       {panel === "problems" && <ProblemsPanel />}
+      {panel === "database" && <DBPanel />}
       <CommandPalette />
       <Toasts />
       <PromptModal />

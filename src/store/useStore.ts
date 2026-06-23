@@ -118,7 +118,8 @@ export type PanelKind =
   | "extensions"
   | "runner"
   | "settings"
-  | "problems";
+  | "problems"
+  | "database";
 
 /** A saved project: a folder plus metadata for fast re-opening. */
 export interface Project {

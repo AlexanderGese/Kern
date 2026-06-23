@@ -4,6 +4,7 @@ import { openFolderDialog, saveActive, closeActive } from "./actions";
 import { git } from "./git/actions";
 import { runActiveFile, stopRun, runTask } from "./runner";
 import { runAllTests, runFileTests, runNearestTest } from "./testing";
+import { sendRequest } from "./rest";
 import { gotoDefinition, findReferences, renameSymbol } from "./lsp/client";
 import { formatDocument, goToSymbol } from "./editorCommands";
 import { createProjectFromFolder, openProject } from "./projects";
@@ -63,6 +64,8 @@ export function allCommands(): Command[] {
     { id: "test.all", title: "Test: Run All", keywords: "test suite pytest cargo jest vitest go", run: () => void runAllTests() },
     { id: "test.file", title: "Test: Run Current File", keywords: "test file", run: () => void runFileTests() },
     { id: "test.nearest", title: "Test: Run Nearest", keywords: "test at cursor nearest", run: () => void runNearestTest() },
+    { id: "rest.send", title: "REST: Send Request", hint: "⌘⏎", keywords: "http request api curl rest .http", run: () => void sendRequest() },
+    { id: "db.open", title: "Database: SQLite Explorer", keywords: "sql sqlite database query table", run: () => s.openPanel("database") },
     { id: "run.config", title: "Code Runner: Configure", run: () => s.openPanel("runner") },
     // ── terminal / view ──
     { id: "view.terminal", title: "Terminal: Toggle", hint: "⌘`", run: () => s.toggleTerm() },
