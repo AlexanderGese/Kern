@@ -1924,7 +1924,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "kern"
+name = "kern-code"
 version = "0.1.0"
 dependencies = [
  "futures-util",
