@@ -1,10 +1,12 @@
 // src/components/BottomDock.tsx — bottom panel hosting the Terminal and the
 // code-runner Output, switchable via tabs.
 import { useEffect, useRef } from "react";
-import { useStore } from "../store/useStore";
+import { useStore, activeTab } from "../store/useStore";
 import { Terminal } from "./Terminal";
 import { DebugView } from "./DebugView";
 import { runActiveFile, stopRun } from "../runner";
+import { useDebug } from "../dap/store";
+import { startDebug, stopDebug } from "../dap/client";
 
 export function BottomDock() {
   const termOpen = useStore((s) => s.termOpen);
@@ -31,6 +33,7 @@ export function BottomDock() {
         </button>
         <span className="bottomdock__spacer" />
         {outputOpen && <OutputActions />}
+        {debugOpen && <DebugActions />}
         <button className="bottomdock__act" title="Close" onClick={closeBottom}>×</button>
       </div>
       <div className="bottomdock__body">
@@ -49,6 +52,26 @@ function OutputActions() {
       {running && <button className="bottomdock__act" title="Stop" onClick={() => void stopRun()}>■</button>}
       <button className="bottomdock__act" title="Clear" onClick={clear}>⌫</button>
     </>
+  );
+}
+
+function DebugActions() {
+  const session = useDebug((s) => s.session);
+  const tab = useStore(activeTab);
+  const idle = session === "idle";
+  return idle ? (
+    <button
+      className="bottomdock__act bottomdock__act--go"
+      title="Start debugging the active file (Python)"
+      disabled={!tab}
+      onClick={() => tab && void startDebug(tab.path, "python")}
+    >
+      ▶ Debug
+    </button>
+  ) : (
+    <button className="bottomdock__act bottomdock__act--stop" title="Stop debugging" onClick={() => void stopDebug()}>
+      ■ Stop
+    </button>
   );
 }
 

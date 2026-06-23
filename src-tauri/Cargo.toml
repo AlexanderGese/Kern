@@ -1,6 +1,6 @@
 [package]
 name = "kern-code"
-version = "0.4.0"
+version = "0.4.1"
 description = "Kern — a calm, complete desktop code editor (Tauri 2 + React + Monaco)"
 authors = ["Alexander Gese"]
 edition = "2021"

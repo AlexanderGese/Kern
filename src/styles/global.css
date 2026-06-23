@@ -425,6 +425,12 @@ body, .titlebar, .sidebar, .tabbar, .pathbar, .statusbar, .gitpanel {
 .bottomdock__spacer { flex: 1; }
 .bottomdock__act { width: 25px; height: 22px; border-radius: var(--radius-sm); color: var(--fg-faint); font-size: 12px; }
 .bottomdock__act:hover { color: var(--fg); background: var(--bg-elevated); }
+.bottomdock__act--go, .bottomdock__act--stop { width: auto; padding: 0 9px; font-size: 11.5px; border: 1px solid var(--line); }
+.bottomdock__act--go { color: #6cc08a; }
+.bottomdock__act--go:hover { border-color: #6cc08a; background: transparent; }
+.bottomdock__act--go:disabled { opacity: 0.4; cursor: default; }
+.bottomdock__act--stop { color: #e0796a; }
+.bottomdock__act--stop:hover { border-color: #e0796a; background: transparent; }
 .bottomdock__body { flex: 1; min-height: 0; display: flex; }
 
 /* terminal */
