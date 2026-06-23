@@ -1,30 +1,54 @@
 # Kern
 
-A calm, minimalist desktop code editor — in the spirit of Zed, but quieter.
-A fixed warm-graphite canvas, all-monospace chrome, and three syntax-only
-themes (**Arctic**, **Grape**, **Amber**) that recolor code without ever
-touching the canvas.
+**Get to the Kern of things.** — a calm, complete desktop code editor in the
+spirit of Zed, but quieter. Warm-graphite (or light) canvas, all-monospace
+chrome, and a single accent used sparingly.
 
 Built with **Tauri 2** (Rust) + **React 19 / TypeScript / Vite** + **Monaco**.
 
+![Kern editor](docs/screenshots/editor.png)
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/light-theme.png" alt="Light theme (Paper)"></td>
+    <td width="50%"><img src="docs/screenshots/git.png" alt="Source control"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/extensions.png" alt="Extensions page"></td>
+  </tr>
+</table>
+
 ## Features
 
-- Zed-style chrome: integrated title bar with custom window controls, nav arrows,
-  a file-path breadcrumb, and a **minimap**. File tree docks right.
-- Open a folder; lazy, expandable file tree
-- Tabs with dirty indicators; open tabs persist across restarts
-- Monaco editor: ~50 languages highlighted, ligatures, generous line height
-- Three themes applied to **both** the CSS chrome and Monaco, kept in sync
-- Command palette (`⌘⇧P`) + Go-to-File (`⌘P`) with fuzzy matching
-- **Settings via the palette**: font family/size, line height, tab size, minimap,
-  word wrap, ligatures, relative line numbers, cursor blink — all persisted
-- **Addons page** (`⌘⇧X`): toggle editor features, switch themes, see which
-  language servers are installed (with install commands)
-- **Source Control** (`⌘⇧G`): branch + changed files, click to open
-- Git signal: current branch in the status bar + per-line gutter change markers
-- LSP completion + diagnostics via real language servers (Pyright, tsserver,
-  rust-analyzer, gopls, clangd) when the binaries are on `PATH`
-- About & Settings panel (`⌘,`), Zen mode, reduced-motion aware
+- **Zed-style chrome** — integrated title bar with custom window controls, nav
+  arrows, a file-path breadcrumb, a **minimap**, and the file tree docked right.
+- **9 themes** incl. 2 light (Paper, Frost) — applied to **both** the CSS chrome
+  and Monaco, switchable instantly. Custom font, size, line-height, tab size.
+- **Projects + Welcome** — save a folder as a named project, reopen instantly
+  from `⌘⇧P`. Tabs + session persist across restarts.
+- **LSP** — completion, diagnostics, hover, **go-to-definition**, find references,
+  **rename**, format, go-to-symbol (Pyright, tsserver, rust-analyzer, gopls, clangd
+  when on `PATH`).
+- **Git** (`⌘⇧G`) — stage/commit/push/pull/fetch, branch switch/create/merge,
+  **stash**, **conflict resolution**, side-by-side diff, blame, history, gutter
+  markers.
+- **Code Runner** — configurable per-language run commands + streamed output.
+- **Integrated terminal** (real PTY), **split editor panes**, global
+  **search & replace**, **snippets**, markdown preview, vim mode.
+- **Settings + Keybindings editor** (`⌘,`) — fully rebindable, persisted;
+  export/import config. Auto-save, format-on-save, problems panel.
+- **Extensions page** (`⌘⇧X`), **multi-window** (`⌘⇧N`), Zen mode,
+  reduced-motion aware.
+
+## Install
+
+Grab a package from the [latest release](https://github.com/AlexanderGese/Kern/releases/latest):
+
+```bash
+sudo dpkg -i Kern_*_amd64.deb      # Debian/Ubuntu
+sudo rpm  -i Kern-*.x86_64.rpm     # Fedora/RHEL
+# or: chmod +x kern-linux-x86_64 && ./kern-linux-x86_64
+```
 
 ## Develop
 
