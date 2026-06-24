@@ -26,14 +26,18 @@ fn run(tool: &str, args: &[&str], cwd: &str) -> Option<String> {
     Some(String::from_utf8_lossy(&out.stdout).to_string())
 }
 
+// Async so Tauri runs it OFF the main thread; the actual linter (which blocks
+// on a child process) runs on a blocking pool, never freezing the UI.
 #[tauri::command]
-pub fn lint_source(language: String, file: String, cwd: String) -> Vec<LintDiag> {
-    match language.as_str() {
+pub async fn lint_source(language: String, file: String, cwd: String) -> Vec<LintDiag> {
+    tokio::task::spawn_blocking(move || match language.as_str() {
         "python" => ruff(&file, &cwd),
         "typescript" | "javascript" => eslint(&file, &cwd),
         "shell" => shellcheck(&file, &cwd),
         _ => Vec::new(),
-    }
+    })
+    .await
+    .unwrap_or_default()
 }
 
 fn ruff(file: &str, cwd: &str) -> Vec<LintDiag> {

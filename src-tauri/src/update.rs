@@ -19,7 +19,13 @@ fn parse_ver(v: &str) -> (u64, u64, u64) {
 }
 
 #[tauri::command]
-pub fn check_update() -> Result<UpdateInfo, String> {
+pub async fn check_update() -> Result<UpdateInfo, String> {
+    tokio::task::spawn_blocking(check_update_blocking)
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+fn check_update_blocking() -> Result<UpdateInfo, String> {
     let url = format!("https://api.github.com/repos/{REPO}/releases/latest");
     let resp = ureq::get(&url)
         .set("User-Agent", "kern-updater")
@@ -34,8 +40,14 @@ pub fn check_update() -> Result<UpdateInfo, String> {
 }
 
 #[tauri::command]
-pub fn self_update() -> Result<String, String> {
-    let info = check_update()?;
+pub async fn self_update() -> Result<String, String> {
+    tokio::task::spawn_blocking(self_update_blocking)
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+fn self_update_blocking() -> Result<String, String> {
+    let info = check_update_blocking()?;
     if !info.update_available {
         return Ok(format!("Kern is up to date (v{}).", info.current));
     }

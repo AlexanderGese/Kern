@@ -5,7 +5,18 @@ use std::io::Write;
 use std::process::{Command, Stdio};
 
 #[tauri::command]
-pub fn format_source(
+pub async fn format_source(
+    tool: String,
+    args: Vec<String>,
+    content: String,
+    cwd: String,
+) -> Result<String, String> {
+    tokio::task::spawn_blocking(move || format_blocking(tool, args, content, cwd))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+fn format_blocking(
     tool: String,
     args: Vec<String>,
     content: String,

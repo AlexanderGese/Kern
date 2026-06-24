@@ -229,7 +229,6 @@ export function Editor({ paneTab, primary = true }: { paneTab?: Tab; primary?: b
   useEffect(() => {
     if (!primary || !tab || !mounted || !editorRef.current || !monacoRef.current) return;
     refreshLineDiff(tab.path);
-    void lintActive(tab.path, tab.monacoLang);
     // Apply .editorconfig indentation for this file (overrides the global setting).
     if (folder) {
       loadEditorConfig(folder, tab.path)
@@ -244,7 +243,12 @@ export function Editor({ paneTab, primary = true }: { paneTab?: Tab; primary?: b
         .catch(() => {});
     }
     const dispose = attachLsp(monacoRef.current, editorRef.current, tab);
-    return dispose;
+    // Lint is deferred off the open path and cancelled if you switch files fast.
+    const lintTimer = window.setTimeout(() => void lintActive(tab.path, tab.monacoLang), 500);
+    return () => {
+      window.clearTimeout(lintTimer);
+      dispose();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab?.path, tab?.saved, mounted, primary]);
 

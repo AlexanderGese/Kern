@@ -2,15 +2,11 @@
 // Walks up from the file to the workspace root, merging matching sections.
 // Covers the common patterns ([*], [*.ext], [{a,b}], [*.{js,ts}]) — enough for
 // almost every real-world config. Drives per-file indentation.
-import { fsApi } from "../ipc";
+import { invoke } from "@tauri-apps/api/core";
 
 export interface EcResult {
   indentSize?: number;
   insertSpaces?: boolean;
-}
-
-function sep(p: string) {
-  return p.includes("\\") ? "\\" : "/";
 }
 
 /** Translate an editorconfig glob to a RegExp tested against the basename. */
@@ -55,26 +51,20 @@ function parse(text: string, basename: string): EcResult & { root?: boolean } {
 
 export async function loadEditorConfig(folder: string, filePath: string): Promise<EcResult> {
   if (!folder || !filePath) return {};
-  const s = sep(filePath);
   const basename = filePath.split(/[\\/]/).pop() ?? "";
   const result: EcResult = {};
-  let dir = filePath.slice(0, filePath.lastIndexOf(s));
-  // Walk up until we leave the workspace folder.
-  for (let guard = 0; guard < 40 && dir && dir.startsWith(folder.slice(0, dir.length || 1)); guard++) {
-    try {
-      const file = await fsApi.openFile(`${dir}${s}.editorconfig`);
-      const parsed = parse(file.content, basename);
-      // Closest file wins; only fill unset keys as we walk upward.
-      if (result.indentSize == null && parsed.indentSize != null) result.indentSize = parsed.indentSize;
-      if (result.insertSpaces == null && parsed.insertSpaces != null) result.insertSpaces = parsed.insertSpaces;
-      if (parsed.root) break;
-    } catch {
-      /* no .editorconfig here */
-    }
-    if (dir === folder) break;
-    const up = dir.slice(0, dir.lastIndexOf(s));
-    if (!up || up === dir) break;
-    dir = up;
+  // One backend call returns the .editorconfig contents, closest dir first.
+  let contents: string[];
+  try {
+    contents = await invoke<string[]>("read_editorconfig", { folder, file: filePath });
+  } catch {
+    return result;
+  }
+  for (const text of contents) {
+    const parsed = parse(text, basename);
+    if (result.indentSize == null && parsed.indentSize != null) result.indentSize = parsed.indentSize;
+    if (result.insertSpaces == null && parsed.insertSpaces != null) result.insertSpaces = parsed.insertSpaces;
+    if (parsed.root) break;
   }
   return result;
 }

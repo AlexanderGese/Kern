@@ -21,7 +21,13 @@ pub struct HttpResponse {
 }
 
 #[tauri::command]
-pub fn http_request(req: HttpRequest) -> Result<HttpResponse, String> {
+pub async fn http_request(req: HttpRequest) -> Result<HttpResponse, String> {
+    tokio::task::spawn_blocking(move || http_blocking(req))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+fn http_blocking(req: HttpRequest) -> Result<HttpResponse, String> {
     let start = Instant::now();
     let mut r = ureq::request(&req.method.to_uppercase(), &req.url);
     for (k, v) in &req.headers {
